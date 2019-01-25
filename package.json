@@ -1,6 +1,6 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
+  "name": "tictactoe",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "react": "^16.7.0",
