@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 
 import './App.css';
 
@@ -7,9 +7,10 @@ const getInitialState = () => ({
   isOperating: false,
   isTicNext: false,
   ticMap: Array(9).fill(''),
+  result: '',
 });
 
-class App extends PureComponent {
+class App extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = getInitialState();
@@ -17,11 +18,11 @@ class App extends PureComponent {
 
   onPressBox = (index) => {
     const { isOperating, ticMap, isTicNext } = this.state;
-    
+
     if (ticMap[index] || isOperating) return;
-    
+
     ticMap[index] = isTicNext ? 'O' : 'X';
-    
+
     this.setState(
       { ticMap, isTicNext: !isTicNext, isOperating: true },
       this.calcVictory);
@@ -38,39 +39,28 @@ class App extends PureComponent {
     const maybeRowVictory = this.isStraightLineVictory(rowPointerGenerator);
     const maybeColumnVictory = this.isStraightLineVictory(columnPointerGenerator);
     const maybeDiagonalVictory = this.isDiagonalVictory();
-    const maybeNoVictory = this.isNoVictory();
-
-    const { isTicNext } = this.state;
-
-    if (maybeRowVictory) {
-      alert(isTicNext ? `X won on Row ${maybeRowVictory}` : `O won on Row ${maybeRowVictory}`)
-    }
-
-    if (maybeColumnVictory) {
-      alert(isTicNext ? `X won on Column ${maybeColumnVictory}` : `O won on Column ${maybeColumnVictory}`)
-    }
-
-    if (maybeDiagonalVictory) {
-      alert(isTicNext ? `X won on Diagonal ${maybeDiagonalVictory}` : `O won on Diagonal ${maybeDiagonalVictory}`)
-    }
-
     const isDone = maybeColumnVictory || maybeRowVictory || maybeDiagonalVictory;
 
-    if (!isDone && maybeNoVictory) {
-      alert('Nobody won today.');
-    }
+    const maybeNoVictory = !isDone && this.isNoVictory();
 
+    const { isTicNext } = this.state;
+    let result;
 
-    this.setState({ isOperating: false, isDone });
+    if (isDone) result = isTicNext ? 'X won!' : 'O won!'
+    else if (maybeNoVictory) result = 'Tough luck! Nobody one this one.'
+
+    console.log(result)
+
+    this.setState({ isOperating: false, isDone, result, noVictor: maybeNoVictory });
   }
 
   isStraightLineVictory = (pointerGenerator) => {
-    // rows and columns 
+    // rows and columns
     // 0,3,6 - 1,4,7 - 2,5,8 ROW
     // 0,1,2 - 3,4,5 - 6,7,8 COLUMN
 
     const { isTicNext, ticMap } = this.state;
-    
+
     const probableVictor = isTicNext ? 'XXX' : 'OOO';
 
     const rowColumnCount = Math.sqrt(ticMap.length);
@@ -86,18 +76,18 @@ class App extends PureComponent {
       }
       if (currentMap === probableVictor) {
         this.setState({ victoryArray });
-        return i + 1; 
+        return i + 1;
       }
     }
     return false;
   }
-  
+
   isDiagonalVictory = () => {
     // 0,4,8 - 2,4,6 DIAGONAL
     const { isTicNext, ticMap } = this.state;
 
     const probableVictor = isTicNext ? 'XXX' : 'OOO';
-    
+
     const diagonal1 = `${ticMap[0]}${ticMap[4]}${ticMap[8]}`;
     const diagonal2 = `${ticMap[2]}${ticMap[4]}${ticMap[6]}`;
 
@@ -123,13 +113,13 @@ class App extends PureComponent {
         {
           Array(3).fill(0).map((_, i2) => i2).map(
             (rowBoxNumber) => {
-              const { isDone, ticMap, victoryArray } = this.state;
+              const { isDone, ticMap, victoryArray, noVictor } = this.state;
               const boxNumber = rowBoxNumber + (rowNumber * 3);
               return (
-                <div className="box" id={`box-${boxNumber}`} key={`box-${boxNumber}`}> 
+                <div className="box" id={`box-${boxNumber}`} key={`box-${boxNumber}`}>
                   <button
                     disabled={isDone}
-                    className={`buttonReset${isDone && victoryArray.includes(boxNumber) ? ' victory' : ''}`}
+                    className={`buttonReset${noVictor ? ' no-victor' : ''}${isDone && victoryArray.includes(boxNumber) ? ' victory' : ''}`}
                     onClick={() => this.onPressBox(boxNumber)}
                   >
                     {ticMap[boxNumber]}
@@ -152,8 +142,9 @@ class App extends PureComponent {
   render() {
     return (
       <div className="container">
-        {this.renderBoxes()}
-        {this.renderResetButton()}
+        <div className="third-flex"><span className="result-text">{this.state.result}</span></div>
+        <div className="third-flex">{this.renderBoxes()}</div>
+        <div className="third-flex">{this.renderResetButton()}</div>
       </div>
     );
   }

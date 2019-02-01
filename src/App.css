@@ -10,6 +10,14 @@
   width: 20vh;
 }
 
+.third-flex {
+  display: flex;
+  flex-grow: 1;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
 .container {
   align-items: center;
   display: flex;
@@ -23,7 +31,6 @@
   align-items: center;
   justify-content: center;
 }
-
 
 .buttonReset {
   background: #0069ed;
@@ -42,6 +49,15 @@
   -moz-appearance: none;
 }
 
+.no-victor {
+  background-color: #e60000;
+}
+
 .victory {
-  background-color: #282c34;
+  background-color: #00cc00;
+}
+
+.result-text {
+  font-size: 24px;
+  color: #0000ff;
 }
