@@ -8,6 +8,8 @@ const getInitialState = () => ({
   isTicNext: false,
   ticMap: Array(9).fill(''),
   result: '',
+  noVictor: null,
+  victoryArray: [],
 });
 
 class App extends React.PureComponent {
@@ -32,12 +34,12 @@ class App extends React.PureComponent {
     this.setState({ ...getInitialState() });
   }
 
-  calcVictory = () => {
+  calcVictory = async () => {
     const rowPointerGenerator = (i, i2) => i + i2 * 3;
     const columnPointerGenerator = (i, i2) => (i * 3) + i2;
 
-    const maybeRowVictory = this.isStraightLineVictory(rowPointerGenerator);
-    const maybeColumnVictory = this.isStraightLineVictory(columnPointerGenerator);
+    const maybeRowVictory = await this.isStraightLineVictory(rowPointerGenerator);
+    const maybeColumnVictory = await this.isStraightLineVictory(columnPointerGenerator);
     const maybeDiagonalVictory = this.isDiagonalVictory();
     const isDone = maybeColumnVictory || maybeRowVictory || maybeDiagonalVictory;
 
@@ -48,8 +50,6 @@ class App extends React.PureComponent {
 
     if (isDone) result = isTicNext ? 'X won!' : 'O won!'
     else if (maybeNoVictory) result = 'Tough luck! Nobody one this one.'
-
-    console.log(result)
 
     this.setState({ isOperating: false, isDone, result, noVictor: maybeNoVictory });
   }
@@ -75,7 +75,8 @@ class App extends React.PureComponent {
         currentMap += ticMap[pointer];
       }
       if (currentMap === probableVictor) {
-        this.setState({ victoryArray });
+        console.log(this.state.victoryArray, victoryArray)
+        this.setState({ victoryArray: [...this.state.victoryArray, ...victoryArray] });
         return i + 1;
       }
     }
@@ -92,11 +93,13 @@ class App extends React.PureComponent {
     const diagonal2 = `${ticMap[2]}${ticMap[4]}${ticMap[6]}`;
 
     if (diagonal1 === probableVictor) {
-      this.setState({ victoryArray: [0, 4, 8] });
+      const victoryArray = [0, 4, 8];
+      this.setState({ victoryArray: [...this.state.victoryArray, ...victoryArray] });
       return 1;
     }
     if (diagonal2 === probableVictor) {
-      this.setState({ victoryArray: [2, 4, 6] });
+      const victoryArray = [2, 4, 6];
+      this.setState({ victoryArray: [...this.state.victoryArray, ...victoryArray] });
       return 2;
     }
 
@@ -140,6 +143,7 @@ class App extends React.PureComponent {
   )
 
   render() {
+    console.log(this.state.victoryArray)
     return (
       <div className="container">
         <div className="third-flex"><span className="result-text">{this.state.result}</span></div>
